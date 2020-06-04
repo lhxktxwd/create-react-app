@@ -12,6 +12,9 @@ const appDirectory = fs.realpathSync(process.cwd());
 
 const isDev = mode === 'development';
 
+const lessRegex = /\.less$/;
+const lessModuleRegex = /\.module\.less$/;
+
 const plugins = [
     //数组 放着所有的webpack插件
     new HtmlWebpackPlugin({
@@ -78,7 +81,8 @@ const config = {
                 include: [[path.resolve(appDirectory, 'src')]],
             },
             {
-                test: /\.(c|le)ss$/,
+                test:lessRegex,
+                exclude:lessModuleRegex,
                 use: [
                     MiniCssExtractPlugin.loader,
                     'css-loader',
@@ -91,6 +95,27 @@ const config = {
                         },
                     },
                     'less-loader',
+                ],
+            },
+            {
+                test: lessModuleRegex,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: require.resolve('css-loader'),
+                        options: {
+                            modules:true
+                        },
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            plugins: function () {
+                                return [require('autoprefixer')];
+                            },
+                        },
+                    },
+                    'less-loader'
                 ],
                 exclude: /node_modules/,
             },
