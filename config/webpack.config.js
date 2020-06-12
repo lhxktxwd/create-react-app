@@ -2,7 +2,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssPlugin = require('optimize-css-assets-webpack-plugin');
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
@@ -12,6 +11,9 @@ const appDirectory = fs.realpathSync(process.cwd());
 
 const isDev = mode === 'development';
 
+const cssRegex = /\.css$/;
+const cssModuleRegex = /\.module\.css$/;
+const sassModuleRegex =  /\.module\.(scss|sass)$/;
 const lessRegex = /\.less$/;
 const lessModuleRegex = /\.module\.less$/;
 
@@ -52,7 +54,6 @@ if (!isDev) {
     );
 } else {
     plugins.pop();
-    plugins.push(new HardSourceWebpackPlugin());
 }
 
 const config = {
@@ -81,6 +82,11 @@ const config = {
                 include: [[path.resolve(appDirectory, 'src')]],
             },
             {
+                test: cssRegex,
+                exclude: cssModuleRegex,
+                use: [ MiniCssExtractPlugin.loader,'css-loader'],
+            },
+            {
                 test:lessRegex,
                 exclude:lessModuleRegex,
                 use: [
@@ -98,11 +104,39 @@ const config = {
                 ],
             },
             {
+                test:sassModuleRegex,
+                include: [[path.resolve(appDirectory, 'node_modules/@cnstrong')]],
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules:true
+                        },
+                    },
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            plugins: function () {
+                                return [require('autoprefixer')];
+                            },
+                        },
+                    },
+                    {
+                        loader:'sass-loader',
+                        options: {
+                            sourceMap: true,
+                            implementation: require("sass")
+                        }
+                    }
+                ],
+            },
+            {
                 test: lessModuleRegex,
                 use: [
                     MiniCssExtractPlugin.loader,
                     {
-                        loader: require.resolve('css-loader'),
+                        loader: 'css-loader',
                         options: {
                             modules:true
                         },
@@ -131,7 +165,7 @@ const config = {
                         },
                     },
                 ],
-                exclude: /node_modules/,
+                // exclude: /node_modules/,
             },
         ],
     },

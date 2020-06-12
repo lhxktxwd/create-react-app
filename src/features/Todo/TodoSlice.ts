@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AppThunk } from 'app/store';
+import { RootState } from 'app/rootReducer';
 
 const initialState = {
     count: 0,
@@ -27,3 +28,5 @@ export const addSync = (count: number): AppThunk => async (dispatch) => {
     });
     dispatch(setCount(result));
 };
+
+export const selectCount = (state: RootState) => state.todo;

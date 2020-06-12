@@ -1,5 +1,9 @@
 import React, { FC } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import Counter from 'components/Counter';
+import { setCount, addSync } from 'features/Todo/TodoSlice';
+import { RootState } from 'app/rootReducer';
+import Chart from 'components/Chart';
 
 interface Props {
     count: number;
@@ -7,11 +11,23 @@ interface Props {
     addCountSync: (num: number) => void;
 }
 
-const Todo: FC<Props> = ({ count, addCount, addCountSync }) => (
-    <div>
-        <Counter num={count} />
-        <button onClick={() => addCount(count + 1)}>add</button>
-        <button onClick={() => addCountSync(count + 1)}>addAsync</button>
-    </div>
-);
+const Todo: FC<Props> = () => {
+    const { count } = useSelector((state: RootState) => state.todo);
+    const dispatch = useDispatch();
+
+    const addCount = (num: number) => {
+        dispatch(setCount(num));
+    };
+    const addCountSync = (num: number) => {
+        dispatch(addSync(num));
+    };
+    return (
+        <div>
+            <Counter num={count} />
+            <Chart type={'barDiagram'} data={[]} />
+            <button onClick={() => addCount(count + 1)}>add</button>
+            <button onClick={() => addCountSync(count + 1)}>addAsync</button>
+        </div>
+    );
+};
 export default Todo;

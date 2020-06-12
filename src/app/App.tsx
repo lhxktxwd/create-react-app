@@ -1,21 +1,30 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from './rootReducer';
-import Todo from 'features/Todo';
-import { setCount, addSync } from 'features/Todo/TodoSlice';
+import Router from '../router';
+import { Helmet } from 'react-helmet';
+import { useLocation } from 'react-router-dom';
+import Header from '@cnstrong/components-business-header';
+import MiniHeader from '@cnstrong/components-mini-header';
+import Footer from '@cnstrong/components-footer';
 
 const App = () => {
-    const dispatch = useDispatch();
-    const { count } = useSelector((state: RootState) => state.todo);
+    const { pathname } = useLocation();
 
-    const addCount = (num: number) => {
-        dispatch(setCount(num));
-    };
-    const addCountSync = (num: number) => {
-        dispatch(addSync(num));
-    };
-
-    return <Todo count={count} addCount={addCount} addCountSync={addCountSync} />;
+    return (
+        <div>
+            <Helmet>
+                <title>{pathname.includes('homework') ? '作业报告' : '预习报告'}</title>
+            </Helmet>
+            <MiniHeader />
+            <Header
+                projectName="homework"
+                renderHeader={() => (pathname.includes('homework') ? '作业报告' : '预习报告')}
+                hideToolbar={true}
+                hidePhoto
+            />
+            <Router />
+            <Footer />
+        </div>
+    );
 };
 
 export default App;
