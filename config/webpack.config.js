@@ -2,6 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssPlugin = require('optimize-css-assets-webpack-plugin');
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
@@ -46,14 +47,12 @@ const plugins = [
 ];
 
 if (!isDev) {
-    plugins.push(new OptimizeCssPlugin());
-    plugins.push(
-        new webpack.DllReferencePlugin({
-            manifest: path.resolve(appDirectory, 'dist', 'dll', 'manifest.json'),
-        }),
-    );
-} else {
     plugins.pop();
+    plugins.push(new webpack.DllReferencePlugin({
+        manifest: path.resolve(appDirectory, 'dist', 'dll', 'manifest.json'),
+    }));
+    plugins.push(new OptimizeCssPlugin());
+    plugins.push(new HardSourceWebpackPlugin());
 }
 
 const config = {
@@ -61,7 +60,7 @@ const config = {
     entry: './src/index.tsx',
     output: {
         path: path.resolve(appDirectory, 'dist'), //必须是绝对路径
-        filename: 'bundle.[hash].js',
+        filename: '[name].[hash:4].js',
         publicPath: isDev ? '/' : './', //通常是CDN地址
     },
     devtool: isDev ? 'cheap-module-eval-source-map' : 'source-map',
@@ -84,13 +83,27 @@ const config = {
             {
                 test: cssRegex,
                 exclude: cssModuleRegex,
-                use: [ MiniCssExtractPlugin.loader,'css-loader'],
+                use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            hmr: isDev,
+                            reloadAll: true,
+                        }
+                    },
+                    'css-loader'],
             },
             {
                 test:lessRegex,
                 exclude:lessModuleRegex,
                 use: [
-                    MiniCssExtractPlugin.loader,
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            hmr: isDev,
+                            reloadAll: true,
+                        }
+                    },
                     'css-loader',
                     {
                         loader: 'postcss-loader',
@@ -171,9 +184,6 @@ const config = {
     },
     plugins,
     optimization: {
-        runtimeChunk: {
-            name: 'manifest',
-        },
         splitChunks: {
             //分割代码块
             cacheGroups: {
@@ -183,26 +193,32 @@ const config = {
                     name: 'vendor',
                     test: /node_modules/,
                     chunks: 'initial',
-                    minSize: 0,
+                    minSize: 100,
                     minChunks: 1, //最少引入了1次
-                },
-                //缓存组
-                common: {
-                    //公共模块
-                    chunks: 'initial',
-                    name: 'common',
-                    minSize: 100, //大小超过100个字节
-                    minChunks: 3, //最少引入了3次
                 },
             },
         },
+        runtimeChunk: {
+            name: 'manifest',
+        },
     },
+    externals: [
+		require("webpack-require-http") //支持require 线上地址资源
+	]
 };
 
 if (isDev) {
     config.devServer = {
         port: '3000',
         hot: true,
+        disableHostCheck: true,
+        // proxy: {
+        //     "/auth": {
+        //         target: "https://webapp.leke.cn",
+        //         secure: false,
+        //         changeOrigin: true
+        //     }
+        // }
     };
 }
 

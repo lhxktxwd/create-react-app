@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import { routes } from './config';
-import '../styles/reset.css';
 
 const Index: FC = () => {
     return (

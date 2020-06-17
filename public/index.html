@@ -7,9 +7,8 @@
 </head>
 <body>
     <div id="root"></div>
+    <% if(process.env.NODE_ENV === 'production') { %>
+    <script src="./dll/react.dll.js"></script>
+    <% } %>
 </body>
-<% if(process.env.NODE_ENV === 'production') { %>
-<script src="./dll/react.dll.js"></script>
-<% } %>
-
 </html>
