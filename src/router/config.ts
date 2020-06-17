@@ -1,7 +1,7 @@
 import Todo from 'features/Todo';
 export const routes = [
     {
-        path: '/todo',
+        path: '/',
         component: Todo,
     },
 ];

@@ -4,6 +4,7 @@ import Counter from 'components/Counter';
 import { setCount, addSync } from 'features/Todo/TodoSlice';
 import { RootState } from 'app/rootReducer';
 import Chart from 'components/Chart';
+import { Button } from 'antd';
 
 interface Props {
     count: number;
@@ -25,6 +26,7 @@ const Todo: FC<Props> = () => {
         <div>
             <Counter num={count} />
             <Chart type={'barDiagram'} data={[]} />
+            <Button>button</Button>
             <button onClick={() => addCount(count + 1)}>add</button>
             <button onClick={() => addCountSync(count + 1)}>addAsync</button>
         </div>

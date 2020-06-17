@@ -5,9 +5,23 @@
     [
         "@babel/preset-env",
         {
+        "targets": {
+          "chrome":"33",
+          "ie":"9"
+        },
         "useBuiltIns": "usage",
         "corejs":3
         }
     ]
-  ]
+  ],
+  "plugins":[
+    [
+      "import",
+      {
+        "libraryName": "antd",
+        "libraryDirectory": "es",
+        "style": true
+      }
+    ]
+]
 }

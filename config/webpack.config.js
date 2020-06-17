@@ -3,6 +3,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssPlugin = require('optimize-css-assets-webpack-plugin');
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
+const modifyVars = require("./antd.config.js");
 const path = require('path');
 const webpack = require('webpack');
 const fs = require('fs');
@@ -113,7 +114,15 @@ const config = {
                             },
                         },
                     },
-                    'less-loader',
+                    {
+                        loader: "less-loader",
+                        options: {
+                            lessOptions:{
+                                modifyVars: modifyVars,
+                                javascriptEnabled: true
+                            },
+                        }
+                    }
                 ],
             },
             {
